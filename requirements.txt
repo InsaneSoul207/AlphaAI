@@ -1,0 +1,15 @@
+
+pillow
+datetime
+pyjokes
+pyautogui
+pywhatkit
+wolframalpha
+PyQt5
+SpeechRecognition
+geopy
+geocoder
+pyttsx3
+secure-smtplib
+psutil
+google-generativeai
