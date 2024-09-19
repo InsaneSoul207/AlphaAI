@@ -13,11 +13,9 @@ import datetime
 import requests
 from PIL import Image
 from facerecogsys.Samplegenerator import SampleGen
-from facerecogsys.ModelTrainer import trainer
-import io       
+from facerecogsys.ModelTrainer import trainer      
 from time import sleep
 import sys 
-import pyjokes
 import time
 import pyautogui
 import subprocess
