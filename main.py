@@ -265,9 +265,7 @@ class MainThread(QThread):
                         query1 = query1.replace("whatsapp","")
                         query1 = query1.replace("Alpha","")
                         query1 = query1.replace("send","")
-                        
                         name = query1
-                        print(name)
                         b = CONTACTS.keys()
                         if name in b:
                             num= CONTACTS[name]
@@ -374,6 +372,7 @@ class MainThread(QThread):
                         speak(" Alright sir, going offline. It was nice working with you")
                         self.wakeup()
                         data = "going offline"
+                        
                     elif "essay" in query or "passage" in query or "paragraph" in query:
                         response = chat_interaction(query)
                         speak("Here is a passage for you.")
@@ -422,7 +421,6 @@ class MainThread(QThread):
                 with open(csv_file, 'w', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(["email", "regesdate"])
-
             print("""
                     Chose one of the below operation:
                     1. LOGIN
