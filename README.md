@@ -29,10 +29,16 @@ It can do a lot of cool things, some of them being:
 
 ## Code Structure
     ├── driver
-    ├── Alpha               # Main folder for features 
-    │   ├── aitalks         # contain text generation system
-    │   ├── config          # Contains all secret API Keys
-    │   ├── features        # All functionalities of Alpha 
+    ├── Alpha                    # Main folder for features 
+    │   ├── aitalks-folder       # contain text generation system
+    │   ├── config-folder        # Contains all secret API Keys
+    │   ├── features-folder      # All functionalities of Alpha 
+    ├── facerecogsys
+    │   ├──samples-folder        # Contains face images of users for training
+    │   ├──trainer-folder        # Contains the yml file 
+    │   ├──facerecognition.py
+    │   ├──ModelTrainer.py
+    │   ├──SampleGenerator.py
     ├── __init__.py         # Definition of feature's functions
     ├── main.py             # main driver program of Alpha
     ├── requirements.txt    # all dependencies of the program
