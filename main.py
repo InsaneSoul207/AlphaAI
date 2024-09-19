@@ -3,7 +3,6 @@ import numpy as np
 import os
 from Alpha import AlphaAssistant
 import re
-import os
 from Alpha.features.LoginRegGUI import LoginWindow
 import random
 import csv
@@ -266,7 +265,9 @@ class MainThread(QThread):
                         query1 = query1.replace("whatsapp","")
                         query1 = query1.replace("Alpha","")
                         query1 = query1.replace("send","")
+                        
                         name = query1
+                        print(name)
                         b = CONTACTS.keys()
                         if name in b:
                             num= CONTACTS[name]
