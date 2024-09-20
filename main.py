@@ -132,7 +132,7 @@ class MainThread(QThread):
 
     def wakeup(self):
         while True:
-            query = input("Enter Query:").lower()
+            query = takecommand().lower()
             print("")
             if 'wake up' in query or 'hello' in query or 'wakeup' in query or 'daddy is here' in query:
                 self.TaskExecution()
@@ -142,7 +142,7 @@ class MainThread(QThread):
     def TaskExecution(self):
         wish()
         while True:
-            query = input("Enter Query:").lower()
+            query = takecommand().lower()
             print("")
             if query == "none":
                 data = "none"
