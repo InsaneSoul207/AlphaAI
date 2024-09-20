@@ -414,17 +414,16 @@ class MainThread(QThread):
                 except:
                     speak("couldn't handle your query")
                     data = "error"
-
+ 
     def LoginOrRegester(self):
             csv_file = 'users.csv'
             if not os.path.exists(csv_file):
                 with open(csv_file, 'w', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(["email", "regesdate"])
-            print("""
-                    Chose one of the below operation:
-                    1. LOGIN
-                    2. REGESTER """)
+            print("Chose one of the below operation:")
+            print(" 1. Login")
+            print(" 2. Register")
             op = input("what do you want to do?: ")
             if str(op) == "1" or str(op) == "login" or str(op) == "Login" or str(op) == "LOGIN":
                 email_id = input("enter your Email Id: ")
