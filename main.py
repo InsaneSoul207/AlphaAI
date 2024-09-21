@@ -10,9 +10,7 @@ from Alpha.aitalks.Brain import generate_response
 from Alpha.features.loc import find_location_and_distance as loc
 import datetime
 import requests
-from PIL import Image
-from facerecogsys.Samplegenerator import SampleGen
-from facerecogsys.ModelTrainer import trainer      
+from PIL import Image    
 from time import sleep
 import sys 
 import time
@@ -87,7 +85,7 @@ def wish():
         speak("Good evening")
     c_time = obj.tell_time()
     speak(f"Currently it is {c_time}")
-    speak("I am Alpha. Online and ready sir. Please tell me how may I help you")
+    speak("I am Alpha. Online and ready sir.")
 
 def chat_generation(user_input):
     response = generate_response(user_input)
@@ -179,7 +177,7 @@ class MainThread(QThread):
             return True
         return False
 
-    def login(self, camera_index=0):
+    def login(self,email_id ,camera_index=0):
         cap = cv2.VideoCapture(camera_index)
         while True:
             ret, frame = cap.read()
@@ -189,11 +187,19 @@ class MainThread(QThread):
             cv2.imshow('Face Recognition Login', frame)
             cv2.putText(frame, f"Recognized: {name}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
             if name != "Unknown":
-                print("#######ACCESS GRANTED#######")
+                print("<-------ACCESS GRANTED------->")
+                current_datetime = datetime.datetime.now()
+                if not os.path.exists("logindata.csv"):
+                    with open("logindata.csv", 'w', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow(["Email", "Login_Time"])
+                with open('logindata.csv', 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([email_id.lower(), current_datetime])
                 self.TaskExecution()
                 break
             elif name == "Unknown":
-                print("#######UNAUTORISED ACCESS#######")
+                print("<-------UNAUTORISED ACCESS------->")
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
@@ -201,25 +207,60 @@ class MainThread(QThread):
         cv2.destroyAllWindows()
 
     def FaceRec(self):
+        print("")
         print("Welcome to Face Recognition Login!")
         choice = input("Do you want to login or register? (login/register): ")
 
         if choice.lower() == "login":
             self.load_known_faces("faces")
-            self.login()
+            LoginMail = input("Enter your Email-ID: ")
+            
+            with open("users.csv", 'r') as file:
+                reader = csv.reader(file)
+                users = list(reader)
+                try:
+                    for user in users:
+                        if user[0] == LoginMail.lower():
+                            self.login(LoginMail)
+                    else:
+                        print("User not found. Please register first.")
+                        print("")
+                        self.FaceRec()
+                except Exception as e:
+                    print(e)
+                    print("No User Found.")
+                    self.FaceRec()
+
         elif choice.lower() == "register":
             username = input("Enter your username: ")
-            if self.register(username):
-                print("Registration successful!")
-                self.FaceRec(self)
-            else:
-                print("Registration failed. Please try again.")
+            RegMail = input("Enter your Email-ID: ")
+            current_datetime = datetime.datetime.now()
+            if not os.path.exists("users.csv"):
+                with open("users.csv", 'w', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow(["Email", "RegesDate","Username"])
+            with open("users.csv", 'r') as file:
+                reader = csv.reader(file)
+                users = list(reader)
+                if RegMail.lower() in [user[0] for user in users]:
+                    print("Email-ID already exists. Please try another one.")
+                    print("")
+                    self.FaceRec()
+                else:
+                    with open("users.csv", 'a', newline='') as file:
+                        writer = csv.writer(file)
+                        writer.writerow([RegMail.lower(), current_datetime ,username])
+                    self.register(username)
+                    print("Registration Successful!")
+                    print("")
+                    self.FaceRec()
         else:
             print("Invalid choice. Please try again.")
+            self.FaceRec()
 
     def wakeup(self):
         while True:
-            query = takecommand().lower()
+            query = input("Enter Query: ").lower()
             print("")
             if 'wake up' in query or 'hello' in query or 'wakeup' in query or 'daddy is here' in query:
                 self.TaskExecution()
@@ -229,7 +270,7 @@ class MainThread(QThread):
     def TaskExecution(self):
         wish()
         while True:
-            query = takecommand().lower()
+            query = input("Enter Query: ").lower()
             print("")
             if query == "none":
                 data = "none"

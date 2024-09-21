@@ -2022,3 +2022,23 @@ User Input: hey what's up
 Response: Not much, just hanging out in the digital world, waiting to be helpful!  What about you?  What's going on in your world today? 
 
 
+User Input: hey wassup
+Response: Hey! Not much, just hanging out in the digital world, waiting to be helpful. What about you? What's going on? 
+
+
+User Input: bas bhag raha main toh
+Response: It sounds like you're feeling overwhelmed or stressed. I'm sorry to hear that. 
+
+It's important to take care of yourself when you're feeling this way.  
+
+* **Can you tell me more about what's making you feel "bas bhag raha main toh"?**  Understanding the source of your stress can help us find ways to manage it.
+* **Do you have anyone you can talk to?**  Sometimes sharing what's bothering you with a trusted friend or family member can help. 
+* **Are there any things you can do to take a break or relax?** Even a few minutes of quiet time, listening to music, or taking a walk can make a difference. 
+
+Remember, it's okay to feel overwhelmed sometimes. You're not alone, and there are people who care about you and want to help. If you need to talk, I'm here to listen. 
+
+
+User Input: aree i meant bas chal rahi meri life kar raha kuch na kuch
+Response: Aree, chal rahi hai life! 😄  It's great to hear you're doing something, even if it's just "bas chal rahi" 😅  What's keeping you busy these days? Tell me more about what's going on in your world. 
+
+
