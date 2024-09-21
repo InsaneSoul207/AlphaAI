@@ -93,7 +93,6 @@ def chat_generation(user_input):
     response = generate_response(user_input)
     return response
 
-# Function to handle chat interaction
 def chat_interaction(user_input):
     with open("Alpha\\aitalks\\all_responses.txt", "a", encoding="utf-8") as file:
         while True:
@@ -101,7 +100,6 @@ def chat_interaction(user_input):
             if user_input == 'exit' or user_input == 'quit':
                 break
             else:
-                # Generate responses
                 response = chat_generation(user_input)
                 file.write(f"User Input: {user_input}\n")
                 file.write(f"Response: {response}\n\n")  
@@ -129,6 +127,95 @@ def call(person):
 class MainThread(QThread):
     def __init__(self):
         super(MainThread, self).__init__()
+        self.known_faces = []
+        self.known_face_names = []
+        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    
+    def load_known_faces(self, path):
+        for file in os.listdir(path):
+            img = cv2.imread(os.path.join(path, file))
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+            if len(faces) > 0:
+                self.known_faces.append(gray)
+                self.known_face_names.append(os.path.splitext(file)[0])
+
+    def recognize_face(self, frame):
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+        if len(faces) > 0:
+            x, y, w, h = faces[0]
+            face_region = gray[y:y+h, x:x+w]
+
+            for i, known_face in enumerate(self.known_faces):
+                if self.compare_faces(face_region, known_face):
+                    return self.known_face_names[i]
+        return "Unknown"
+    
+    def compare_faces(self, face1, face2):
+        hist1 = cv2.calcHist([face1], [0], None, [256], [0, 256])
+        hist2 = cv2.calcHist([face2], [0], None, [256], [0, 256])
+        return cv2.compareHist(hist1, hist2, cv2.HISTCMP_CORREL) > 0.5
+
+    def register(self, username, camera_index=0):
+        cap = cv2.VideoCapture(camera_index)
+        for i in range(10):
+            ret, frame = cap.read()
+        ret, frame = cap.read()
+        if not ret:
+            return False
+
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = self.face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+        
+        if len(faces) > 0:
+            x, y, w, h = faces[0]
+            face_region = gray[y:y+h, x:x+w]
+            self.known_faces.append(face_region)
+            self.known_face_names.append(username)
+            cv2.imwrite(f"faces/{username}.jpg", face_region)
+            cap.release()
+            cv2.destroyAllWindows()
+            return True
+        return False
+
+    def login(self, camera_index=0):
+        cap = cv2.VideoCapture(camera_index)
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            name = self.recognize_face(frame)
+            cv2.imshow('Face Recognition Login', frame)
+            cv2.putText(frame, f"Recognized: {name}", (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            if name != "Unknown":
+                print("#######ACCESS GRANTED#######")
+                self.TaskExecution()
+                break
+            elif name == "Unknown":
+                print("#######UNAUTORISED ACCESS#######")
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
+
+    def FaceRec(self):
+        print("Welcome to Face Recognition Login!")
+        choice = input("Do you want to login or register? (login/register): ")
+
+        if choice.lower() == "login":
+            self.load_known_faces("faces")
+            self.login()
+        elif choice.lower() == "register":
+            username = input("Enter your username: ")
+            if self.register(username):
+                print("Registration successful!")
+                self.FaceRec(self)
+            else:
+                print("Registration failed. Please try again.")
+        else:
+            print("Invalid choice. Please try again.")
 
     def wakeup(self):
         while True:
@@ -137,7 +224,7 @@ class MainThread(QThread):
             if 'wake up' in query or 'hello' in query or 'wakeup' in query or 'daddy is here' in query:
                 self.TaskExecution()
     def run(self):
-        self.LoginOrRegester()
+        self.FaceRec()
 
     def TaskExecution(self):
         wish()
@@ -414,81 +501,7 @@ class MainThread(QThread):
                 except:
                     speak("couldn't handle your query")
                     data = "error"
- 
-    def LoginOrRegester(self):
-            csv_file = 'users.csv'
-            if not os.path.exists(csv_file):
-                with open(csv_file, 'w', newline='') as file:
-                    writer = csv.writer(file)
-                    writer.writerow(["email", "regesdate"])
-            print("Chose one of the below operation:")
-            print(" 1. Login")
-            print(" 2. Register")
-            op = input("what do you want to do?: ")
-            if str(op) == "1" or str(op) == "login" or str(op) == "Login" or str(op) == "LOGIN":
-                email_id = input("enter your Email Id: ")
-                with open(csv_file, 'r') as file:
-                    reader = csv.reader(file)
-                    users = list(reader)
-                    for user in users:
-                        if user[0] == email_id.lower():
-                            recognizer = cv2.face.LBPHFaceRecognizer.create()
-                            recognizer.read(r'facerecogsys\trainer\trainer.yml')
-                            cascadePath = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-                            faceCascade = cv2.CascadeClassifier(cascadePath)
-                            font = cv2.FONT_HERSHEY_SIMPLEX
-                            cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-                            cam.set(3, 640)
-                            cam.set(4, 480)
-                            minW = 0.1 * cam.get(3)
-                            minH = 0.1 * cam.get(4)
-                            while True:
-                                ret, img = cam.read()
-                                converted_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                                faces = faceCascade.detectMultiScale(
-                                    converted_image,
-                                    scaleFactor=1.2,
-                                    minNeighbors=5,
-                                    minSize=(int(minW), int(minH)),
-                                )
-                                for (x, y, w, h) in faces:
-                                    cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                                    Imgnumber, accuracy = recognizer.predict(converted_image[y:y + h, x:x + w])
-                                    if (accuracy < 100):
-                                        accuracy = "  {0}%".format(round(100 - accuracy))
-                                        print("#######ACCESS GRANTED#######")
-                                        current_datetime = datetime.datetime.now()
-                                        with open('logindata.csv', 'a', newline='') as file:
-                                            writer = csv.writer(file)
-                                            writer.writerow([email_id.lower(), current_datetime])
-                                        self.TaskExecution()
-                                    else:
-                                        id = "unknown"
-                                        accuracy = "  {0}%".format(round(100 - accuracy))
-                                        print("#######UNAUTORISED ACCESS#######")
-                                        break
 
-                                    cv2.putText(img, str(accuracy), (x + 5, y + h - 5), font, 1, (255, 255, 0), 1)
-                                cv2.imshow('camera', img)
-                                k = cv2.waitKey(10) & 0xff
-                                if k == 27:
-                                    break
-                            cam.release()
-                            cv2.destroyAllWindows()
-                            break
-                    else:
-                        print("!!!!PLEASE REGESTER YOURSELF FIRST!!!")
-                        self.LoginOrRegester()
-            elif str(op) == "2" or str(op) == "regester" or str(op) == "Regester" or str(op) == "REGESTER":
-                mail = input("Enter Your email id: ")
-                current_datetime = datetime.datetime.now()
-                with open(csv_file, 'a', newline='') as file:
-                    writer = csv.writer(file)
-                    writer.writerow([mail.lower(), current_datetime])
-                SampleGen()
-                trainer()
-                print("Regesteration is complete now you can login.")
-                self.LoginOrRegester()
 startExecution = MainThread()
 
 
